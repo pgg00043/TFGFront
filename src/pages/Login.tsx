@@ -1,6 +1,8 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { login } from '../api/apiClient';
+import { useAuth } from '../auth/useAuth';
+
 
 function Login() {
   const navigate = useNavigate();
@@ -8,6 +10,8 @@ function Login() {
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const { login: authLogin } = useAuth();
+
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -16,6 +20,8 @@ function Login() {
 
     try {
       const result = await login(username, password);
+      
+      authLogin(result.accessToken, result.user);
 
       localStorage.setItem('token', result.accessToken);
 

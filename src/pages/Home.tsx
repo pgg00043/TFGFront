@@ -1,12 +1,16 @@
 import { Link } from 'react-router-dom';
+import { useAuth } from '../auth/useAuth';
 
 function Home() {
+  const { user, isAuthenticated } = useAuth();
+
+  console.log('AUTH STATE:', user, isAuthenticated);
   return (
     <div className="min-h-screen flex items-center justify-center bg-background">
       <div className="w-[420px] rounded-lg border bg-card p-8 text-card-foreground shadow text-center space-y-6">
         
         <h1 className="text-3xl font-bold">
-          Basket League
+          Basket App
         </h1>
 
         <p className="text-muted-foreground">
