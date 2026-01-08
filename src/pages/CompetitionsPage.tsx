@@ -35,9 +35,13 @@ function CompetitionsPage() {
         <h1 className="text-xl font-semibold">Basket League</h1>
 
         <div className="flex items-center gap-4">
-          <span className="text-sm text-muted-foreground">
+          <Link
+            to="/my-leagues"
+            className="text-sm text-muted-foreground hover:underline"
+          >
             {user?.username} ({user?.rol})
-          </span>
+          </Link>
+
           <button
             onClick={logout}
             className="rounded-md bg-destructive text-destructive-foreground px-3 py-1 text-sm"

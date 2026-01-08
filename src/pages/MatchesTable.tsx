@@ -1,3 +1,5 @@
+import { useNavigate } from "react-router-dom";
+
 type Match = {
   id: number;
   date: Date;
@@ -21,6 +23,7 @@ type Props = {
 };
 
 function MatchesTable({ matches }: Props) {
+  const navigate = useNavigate();
   return (
     <div className="overflow-x-auto">
       <table className="w-full border-collapse text-sm">
@@ -41,6 +44,7 @@ function MatchesTable({ matches }: Props) {
             return (
               <tr
                 key={match.id}
+                onClick={() => navigate(`/matches/${match.id}`)}
                 className="border-b border-border hover:bg-muted"
               >
                 <td className="py-2">{formattedDate}</td>

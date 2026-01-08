@@ -1,3 +1,5 @@
+import { Link } from "react-router-dom";
+
 type StandingRow = {
   id: number;
   name: string;
@@ -37,7 +39,11 @@ function StandingsTable({ standings }: Props) {
                 key={`${row.id}-${row.name}`}
                 className="border-b border-border hover:bg-muted"
               >
-                <td className="py-2 font-medium">{row.name}</td>
+                <td className="py-2 font-medium">
+                  <Link to={`/team/${row.id}`} className="text-primary">
+                    {row.name}
+                  </Link>
+                </td>
                 <td className="py-2 text-center">{row.played}</td>
                 <td className="py-2 text-center">{row.won}</td>
                 <td className="py-2 text-center">{row.lost}</td>

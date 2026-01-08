@@ -16,7 +16,7 @@ type Team = {
   pointsAgainst: number;
 };
 
-export type Match = {
+type Match = {
   id: number;
   date: Date;
   hour: string;

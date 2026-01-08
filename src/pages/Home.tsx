@@ -1,14 +1,13 @@
-import { Link } from 'react-router-dom';
-import { useAuth } from '../auth/useAuth';
+import { Link } from "react-router-dom";
+import { useAuth } from "../auth/useAuth";
 
 function Home() {
   const { user, isAuthenticated } = useAuth();
 
-  console.log('AUTH STATE:', user, isAuthenticated);
   return (
     <div className="min-h-screen flex items-center justify-center bg-background">
       <div className="w-[420px] rounded-lg border bg-card p-8 text-card-foreground shadow text-center space-y-6">
-        
+
         <h1 className="text-3xl font-bold">
           Basket App
         </h1>
@@ -17,21 +16,55 @@ function Home() {
           Plataforma para gestionar ligas, equipos, partidos y estadísticas.
         </p>
 
-        <div className="flex flex-col gap-3">
-          <Link
-            to="/login"
-            className="w-full rounded-md bg-primary text-primary-foreground py-2 font-medium text-center"
-          >
-            Login
-          </Link>
+        {/* USUARIO NO AUTENTICADO */}
+        {!isAuthenticated && (
+          <div className="flex flex-col gap-3">
+            <Link
+              to="/login"
+              className="w-full rounded-md bg-primary text-primary-foreground py-2 font-medium text-center"
+            >
+              Login
+            </Link>
 
-          <Link
-            to="/register"
-            className="w-full rounded-md border border-primary text-primary py-2 font-medium text-center"
-          >
-            Register
-          </Link>
-        </div>
+            <Link
+              to="/register"
+              className="w-full rounded-md border border-primary text-primary py-2 font-medium text-center"
+            >
+              Register
+            </Link>
+          </div>
+        )}
+
+        {/* USUARIO AUTENTICADO */}
+        {isAuthenticated && (
+          <div className="flex flex-col gap-3">
+            <p className="text-sm text-muted-foreground">
+              Bienvenido{user?.username ? `, ${user.username}` : ""}
+            </p>
+
+            <Link
+              to="/my-leagues"
+              className="w-full rounded-md bg-primary text-primary-foreground py-2 font-medium text-center"
+            >
+              Mis ligas
+            </Link>
+
+            <Link
+              to="/dashboard"
+              className="w-full rounded-md border border-primary text-primary py-2 font-medium text-center"
+            >
+              Competiciones
+            </Link>
+
+            <Link
+              to="/competitions/create"
+              className="w-full rounded-md border border-primary text-primary py-2 font-medium text-center"
+            >
+              Crear liga
+            </Link>
+          </div>
+        )}
+
       </div>
     </div>
   );

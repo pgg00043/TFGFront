@@ -1,5 +1,6 @@
 const API_URL = 'http://localhost:3000'; // puerto de tu backend Nest
 
+
 function authHeaders() {
   const token = localStorage.getItem('token');
 
@@ -8,7 +9,6 @@ function authHeaders() {
     ...(token && { Authorization: `Bearer ${token}` }),
   };
 }
-
 
 export async function login(username: string, password: string) {
   const response = await fetch(`${API_URL}/auth/login`, {
@@ -112,4 +112,45 @@ export async function getCompetitionMatches(competitionId: number) {
   return response.json();
 }
 
+export async function getMatchById(matchId: number) {
+  const response = await fetch(
+    `${API_URL}/matches/${matchId}`,
+    {
+      headers: authHeaders(),
+    }
+  );
 
+  if (!response.ok) {
+    throw new Error('Failed to load match');
+  }
+
+  return response.json();
+}
+
+export async function getTeamPlayers(teamId: number) {
+  const response = await fetch(
+    `${API_URL}/team/${teamId}/players`,
+    {
+      headers: authHeaders(),
+    }
+  );
+
+  if (!response.ok) {
+    throw new Error('Failed to load players');
+  }
+
+  return response.json();
+}
+
+export async function getMyCompetitions() {
+  const response = await fetch(`${API_URL}/competition/my`, {
+    method: 'GET',
+    headers: authHeaders(),
+  });
+
+  if (!response.ok) {
+    throw new Error('Failed to load my competitions');
+  }
+
+  return response.json();
+}
