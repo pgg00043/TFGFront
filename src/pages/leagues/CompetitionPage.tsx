@@ -1,8 +1,11 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
-import { getCompetitionById, getCompetitionMatches, getCompetitionStandings } from '../api/apiClient';
-import StandingsTable from './StandingsTable';
-import MatchesTable from './MatchesTable';
+import { getCompetitionById, getCompetitionMatches, getCompetitionStandings } from '../../api/apiClient';
+import StandingsTable from '../../components/tables/StandingsTable';
+import MatchesTable from '../../components/tables/MatchesTable';
+import AddTeamToCompetition from "../../components/actions/addTeamToCompetition";
+import { useAuth } from '../../auth/useAuth';
+
 
 type Team = {
   id: number;
@@ -39,6 +42,10 @@ type Competition = {
   name: string;
   category: string;
   teams: Team[];
+  owner: {
+    id: number;
+    name: string;
+  };
 };
 
 type StandingRow = {
@@ -67,8 +74,13 @@ function CompetitionPage() {
   const [matches, setMatches] = useState<Match[]>([]);
   const [matchesLoading, setMatchesLoading] = useState(true);
   const [matchesError, setMatchesError] = useState('');
+  const { user } = useAuth();
 
-
+  const isOwner = useMemo(() => {
+    if (!competition || !user) return false;
+    return competition.owner?.id === user.userId;
+  }, [competition, user]);
+  const [ownerOpen, setOwnerOpen] = useState(false);
 
   useEffect(() => {
     if (!competitionId) {
@@ -175,6 +187,28 @@ function CompetitionPage() {
                 Equipos inscritos: {competition.teams?.length ?? 0}
               </p>
             </div>
+            {/* Owner actions (collapsible) */}
+            {isOwner && (
+              <div className="rounded-lg border bg-card p-5 mb-6">
+                <div className="flex items-center justify-between">
+                  <h3 className="text-lg font-semibold mb-0">Gestión de equipos</h3>
+                  <button
+                    onClick={() => setOwnerOpen(o => !o)}
+                    aria-expanded={ownerOpen}
+                    className="text-sm text-primary hover:opacity-90"
+                  >
+                    {ownerOpen ? 'Ocultar' : 'Mostrar'}
+                  </button>
+                </div>
+
+                {ownerOpen && (
+                  <div className="mt-4">
+                    <AddTeamToCompetition competitionId={competition.id} />
+                  </div>
+                )}
+              </div>
+            )}
+
 
             {/* Tabs */}
             <div className="flex gap-2 mb-6">

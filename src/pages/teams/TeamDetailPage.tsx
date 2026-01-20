@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
-import { useParams, Link } from 'react-router-dom';
-import { getTeamPlayers } from '../api/apiClient';
+import { useParams, Link, useLocation } from 'react-router-dom';
+import { getTeamPlayers } from '../../api/apiClient';
 
 type Player = {
   id: number;
@@ -17,6 +17,9 @@ function TeamDetailPage() {
   const [players, setPlayers] = useState<Player[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+
+  const location = useLocation() as { state?: { name?: string } };
+  const teamName = location.state?.name ?? (teamId ? `Equipo ${teamId}` : 'Equipo');
 
   useEffect(() => {
     if (!teamId) {
@@ -46,7 +49,8 @@ function TeamDetailPage() {
       </header>
 
       <main className="p-6 max-w-3xl mx-auto">
-        <h2 className="text-2xl font-bold mb-4">Jugadores del equipo</h2>
+        <h1 className="text-2xl font-bold mb-2">{teamName}</h1>
+        <h2 className="text-lg text-muted-foreground mb-4">Jugadores del equipo</h2>
 
         {loading && <p className="text-muted-foreground">Cargando…</p>}
         {error && <p className="text-destructive">{error}</p>}

@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { getCompetitions } from '../api/apiClient';
-import { useAuth } from '../auth/useAuth';
+import { getCompetitions } from '../../api/apiClient';
+import { useAuth } from '../../auth/useAuth';
 
 type Competition = {
   id: number;
@@ -14,6 +14,7 @@ function CompetitionsPage() {
   const [competitions, setCompetitions] = useState<Competition[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [menuOpen, setMenuOpen] = useState(false);
 
   useEffect(() => {
     (async () => {
@@ -35,12 +36,35 @@ function CompetitionsPage() {
         <h1 className="text-xl font-semibold">Basket League</h1>
 
         <div className="flex items-center gap-4">
-          <Link
-            to="/my-leagues"
-            className="text-sm text-muted-foreground hover:underline"
-          >
-            {user?.username} ({user?.rol})
-          </Link>
+          <div className="relative">
+            <button
+              onClick={() => setMenuOpen((s) => !s)}
+              className="text-sm text-muted-foreground hover:underline flex items-center gap-2"
+              aria-haspopup="true"
+              aria-expanded={menuOpen}
+            >
+              {user?.username} ({user?.rol}) <span className="text-xs">▾</span>
+            </button>
+
+            {menuOpen && (
+              <div className="absolute right-0 mt-2 w-44 rounded-md border bg-card shadow-lg z-10">
+                <Link
+                  to="/my-leagues"
+                  onClick={() => setMenuOpen(false)}
+                  className="block px-4 py-2 text-sm text-foreground hover:bg-accent/10"
+                >
+                  My Leagues
+                </Link>
+                <Link
+                  to="/my-teams"
+                  onClick={() => setMenuOpen(false)}
+                  className="block px-4 py-2 text-sm text-foreground hover:bg-accent/10"
+                >
+                  My Teams
+                </Link>
+              </div>
+            )}
+          </div>
 
           <button
             onClick={logout}

@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { getMatchById } from '../api/apiClient';
-import MatchStatsTable from './MatchStatsTable.tsx';
-import TeamTotalsCard from './TeamTotalsCard';
+import { getMatchById } from '../../api/apiClient.ts';
+import MatchStatsTable from '../../components/tables/MatchStatsTable.tsx';
+import TeamTotalsCard from '../../components/cards/TeamTotalsCard.tsx';
 
 /* =======================
    TIPOS

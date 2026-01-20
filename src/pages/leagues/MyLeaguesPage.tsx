@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { getMyCompetitions } from "../api/apiClient";
+import { getMyCompetitions } from "../../api/apiClient";
 
 
 type Competition = {
@@ -46,7 +46,7 @@ export default function MyLeaguesPage() {
               key={league.id}
               className="border rounded p-4 hover:bg-gray-50"
             >
-              <Link to={`/competitions/${league.id}`}>
+              <Link to={`/competition/${league.id}`}>
                 <p className="font-semibold">{league.name}</p>
               </Link>
             </li>

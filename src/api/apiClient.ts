@@ -1,7 +1,7 @@
-const API_URL = 'http://localhost:3000'; // puerto de tu backend Nest
+const API_URL = 'http://localhost:3000';
 
 
-function authHeaders() {
+export function authHeaders() {
   const token = localStorage.getItem('token');
 
   return {
@@ -154,3 +154,69 @@ export async function getMyCompetitions() {
 
   return response.json();
 }
+
+
+export async function createCompetition(data: {
+  name: string;
+  category: string;
+}) {
+  const response = await fetch(`${API_URL}/competition`, {
+    method: 'POST',
+    headers: authHeaders(),
+    body: JSON.stringify(data),
+  });
+
+  if (!response.ok) {
+    throw new Error('Failed to create competition');
+  }
+
+  return response.json();
+}
+
+export async function createTeam(data: { name: string }) {
+  const response = await fetch('http://localhost:3000/team', {
+    method: 'POST',
+    headers: authHeaders(),
+    body: JSON.stringify(data),
+  });
+
+  if (!response.ok) {
+    throw new Error('Failed to create team');
+  }
+
+  return response.json();
+}
+
+export async function getMyTeams() {
+  const response = await fetch('http://localhost:3000/team/my', {
+    method: 'GET',
+    headers: authHeaders(),
+  });
+
+  if (!response.ok) {
+    throw new Error('Failed to load teams');
+  }
+
+  return response.json();
+}
+
+export async function addTeamToCompetition(
+  competitionId: number,
+  teamId: number
+) {
+  const response = await fetch(
+    `${API_URL}/competition/${competitionId}/team/${teamId}`,
+    {
+      method: "PATCH",
+      headers: authHeaders(),
+    }
+  );
+
+  if (!response.ok) {
+    throw new Error("Failed to add team to competition");
+  }
+
+  return response.json();
+}
+
+
