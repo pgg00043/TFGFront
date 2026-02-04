@@ -1,59 +1,16 @@
 import { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { getMatchById } from '../../api/apiClient.ts';
-import MatchStatsTable from '../../components/tables/MatchStatsTable.tsx';
+import { createStat, getMatchById, updateStat } from '../../api/apiClient.ts';
 import TeamTotalsCard from '../../components/cards/TeamTotalsCard.tsx';
+import type { Match, Stat } from '../../entitys/Entity.tsx';
+import { useAuth } from '../../auth/useAuth.tsx';
+import MatchStatsEditableTable from '../../components/tables/MatchStatsEditableTable';
 
-/* =======================
-   TIPOS
-======================= */
 
-type Player = {
-  id: number;
-  name: string;
-  surname: string;
-  team: {
-    id: number;
-    name: string;
-  };
-};
-
-type Stat = {
-  id: number;
-  points: number;
-  rebounds: number;
-  assists: number;
-  steals: number;
-  blocks: number;
-  turnovers: number;
-  fouls: number;
-  minutesPlayed: number;
-  user: Player;
-};
-
-type Match = {
-  id: number;
-  date: string;
-  hour: string;
-  location: string;
-  homeTeam: {
-    id: number;
-    name: string;
-  };
-  awayTeam: {
-    id: number;
-    name: string;
-  };
-  scoreHome: number | null;
-  scoreAway: number | null;
-  stats?: Stat[];
-};
-
-/* =======================
-   UTILIDADES
-======================= */
-
-function calculateTeamTotals(stats: Stat[] | undefined, teamId: number) {
+function calculateTeamTotals(
+  stats: Stat[] | undefined,
+  teamPlayers: { id: number }[]
+) {
   if (!stats || stats.length === 0) {
     return {
       points: 0,
@@ -66,8 +23,10 @@ function calculateTeamTotals(stats: Stat[] | undefined, teamId: number) {
     };
   }
 
+  const playerIds = new Set(teamPlayers.map(p => p.id));
+
   return stats
-    .filter(stat => stat.user.team.id === teamId)
+    .filter(stat => playerIds.has(stat.user.id))
     .reduce(
       (acc, stat) => ({
         points: acc.points + stat.points,
@@ -91,10 +50,6 @@ function calculateTeamTotals(stats: Stat[] | undefined, teamId: number) {
 }
 
 
-/* =======================
-   COMPONENTE
-======================= */
-
 function MatchDetailPage() {
   const { id } = useParams<{ id: string }>();
   const matchId = id ? Number(id) : null;
@@ -102,6 +57,13 @@ function MatchDetailPage() {
   const [match, setMatch] = useState<Match | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const { user } = useAuth();
+  const [localStats, setLocalStats] = useState<Stat[]>([]);
+
+
+  const canEditStats = Boolean(
+    user && match && match.competition?.ownerId === user.id
+  )
 
   useEffect(() => {
     if (!matchId) {
@@ -122,6 +84,42 @@ function MatchDetailPage() {
     })();
   }, [matchId]);
 
+
+
+  useEffect(() => {
+    if (!match) return;
+
+    const allPlayers = [
+      ...(match.homeTeam.players ?? []),
+      ...(match.awayTeam.players ?? []),
+    ];
+
+    const initialStats: Stat[] = allPlayers.map(player => {
+      const existing = match.stats?.find(
+        s => s.user.id === player.id
+      );
+
+      return (
+        existing ?? {
+          id: -1,
+          user: player,
+          points: 0,
+          rebounds: 0,
+          assists: 0,
+          steals: 0,
+          blocks: 0,
+          turnovers: 0,
+          fouls: 0,
+          minutesPlayed: 0,
+        }
+      );
+    });
+
+    setLocalStats(initialStats);
+  }, [match]);
+
+
+  
   if (loading) {
     return (
       <p className="p-6 text-muted-foreground">
@@ -129,7 +127,7 @@ function MatchDetailPage() {
       </p>
     );
   }
-
+  
   if (error) {
     return (
       <p className="p-6 text-destructive">
@@ -137,19 +135,67 @@ function MatchDetailPage() {
       </p>
     );
   }
-
+  
   if (!match) return null;
 
   const formattedDate = new Date(match.date).toLocaleDateString();
 
   const homeTotals = calculateTeamTotals(
-    match.stats ?? [],
-    match.homeTeam.id
+    localStats,
+    match.homeTeam.players ?? []
   );
+
   const awayTotals = calculateTeamTotals(
-    match.stats ?? [],
-    match.awayTeam.id
+    localStats,
+    match.awayTeam.players ?? []
   );
+
+  const handleStatChange = (
+    userId: number,
+    field: keyof Stat,
+    value: number
+  ) => {
+    setLocalStats(prev =>
+      prev.map(stat =>
+        stat.user.id === userId
+          ? { ...stat, [field]: value }
+          : stat
+      )
+    );
+  };
+
+  const handleSaveStats = async () => {
+    if (!match) return;
+
+    try {
+      for (const stat of localStats) {
+        const payload = {
+          matchId: match.id,
+          userId: stat.user.id,
+          points: stat.points,
+          rebounds: stat.rebounds,
+          assists: stat.assists,
+          steals: stat.steals,
+          blocks: stat.blocks,
+          turnovers: stat.turnovers,
+          fouls: stat.fouls,
+          minutesPlayed: stat.minutesPlayed,
+        };
+
+        if (stat.id === -1) {
+          await createStat(payload);
+        } else {
+          await updateStat(stat.id, payload);
+        }
+      }
+
+      alert('Estadísticas guardadas correctamente');
+    } catch {
+      alert('Error al guardar estadísticas');
+    }
+  };
+
+
 
   return (
     <div className="min-h-screen bg-background text-foreground">
@@ -196,18 +242,31 @@ function MatchDetailPage() {
           />
         </div>
 
-        {/* Individual stats */}
         <h3 className="text-lg font-semibold mb-4">
-          Estadísticas individuales
+          Estadísticas por jugador
         </h3>
-
-        {(match.stats ?? []).length > 0 ? (
-          <MatchStatsTable stats={match.stats ?? []} />
-        ) : (
-          <p className="text-sm text-muted-foreground">
-            No hay estadísticas registradas para este partido.
-          </p>
+        {canEditStats && (
+          <button
+            onClick={handleSaveStats}
+            className="mb-6 rounded-md bg-primary px-4 py-2 text-primary-foreground"
+          >
+            Guardar estadísticas
+          </button>
         )}
+        <MatchStatsEditableTable
+          team={match.homeTeam as any}
+          stats={localStats}
+          canEdit={canEditStats}
+          onChange={handleStatChange}
+        />
+
+        <MatchStatsEditableTable
+          team={match.awayTeam as any}
+          stats={localStats}
+          canEdit={canEditStats}
+          onChange={handleStatChange}
+        />
+
       </main>
     </div>
   );

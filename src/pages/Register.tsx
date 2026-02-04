@@ -5,7 +5,6 @@ import { register } from '../api/apiClient';
 function Register() {
     const [name, setName] = useState('');
     const [surname, setSurname] = useState('');
-    const [ rol, setRol] = useState('');
     const [username, setUsername] = useState('');
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
@@ -31,7 +30,6 @@ function Register() {
             await register({
                 name,
                 surname,
-                rol,
                 username,
                 email,
                 password,
@@ -40,7 +38,6 @@ function Register() {
             setSuccess('Usuario registrado correctamente');
             setName('');
             setSurname('');
-            setRol('');
             setUsername('');
             setEmail('');
             setPassword('');
@@ -83,19 +80,6 @@ function Register() {
                 required
                 />
             </div>
-
-            <div>
-                <label className="text-sm font-medium">Rol</label>
-                <input
-                type="name"
-                className="w-full rounded-md border px-3 py-2 mt-1 bg-background focus:outline-none focus:ring-2 focus:ring-primary"
-                value={rol}
-                onChange={(e) => setRol(e.target.value)}
-                disabled={loading}
-                required
-                />
-            </div>
-
 
             <div>
                 <label className="text-sm font-medium">Username</label>

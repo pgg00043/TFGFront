@@ -1,12 +1,15 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { createTeam } from '../../api/apiClient';
+import { createTeam, uploadTeamImage } from '../../api/apiClient';
+
 
 function CreateTeamPage() {
   const [name, setName] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const navigate = useNavigate();
+  const [file, setFile] = useState<File | null>(null);
+
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -19,7 +22,16 @@ function CreateTeamPage() {
     try {
       setLoading(true);
       setError('');
-      await createTeam({ name });
+
+      // 1️⃣ Crear equipo
+      const team = await createTeam({ name });
+
+      // 2️⃣ Subir imagen si existe
+      if (file) {
+        await uploadTeamImage(team.id, file);
+      }
+
+      // 3️⃣ Navegar
       navigate('/my-teams');
     } catch {
       setError('No se ha podido crear el equipo');
@@ -27,6 +39,15 @@ function CreateTeamPage() {
       setLoading(false);
     }
   };
+
+
+  const handleFile = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      setFile(e.target.files[0]);
+    }
+  };
+
+
 
   return (
     <div className="min-h-screen bg-background text-foreground">
@@ -62,6 +83,16 @@ function CreateTeamPage() {
               onChange={(e) => setName(e.target.value)}
               placeholder="Nombre del equipo"
             />
+            <label className="block text-sm font-medium mb-1 mt-4">
+              Logo del equipo (opcional)
+            </label>
+            <input
+              className="w-full border rounded-md p-2"
+              type="file"
+              accept="image/*"
+              onChange={handleFile}
+            />
+
           </div>
 
           {error && (

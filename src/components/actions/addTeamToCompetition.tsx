@@ -1,5 +1,7 @@
 import { useEffect, useState } from "react";
-import { getMyTeams, addTeamToCompetition } from "../../api/apiClient";
+import { getAllTeams, addTeamToCompetition } from "../../api/apiClient";
+import { useNotification } from "../../ui/NotificationContext";
+
 
 interface Props {
   competitionId: number;
@@ -9,9 +11,10 @@ export default function AddTeamToCompetition({ competitionId }: Props) {
   const [teams, setTeams] = useState<any[]>([]);
   const [selectedTeam, setSelectedTeam] = useState<number | null>(null);
   const [loading, setLoading] = useState(false);
+  const { notify } = useNotification();
 
   useEffect(() => {
-    getMyTeams().then(setTeams);
+    getAllTeams().then(setTeams);
   }, []);
 
   const handleAdd = async () => {
@@ -20,9 +23,9 @@ export default function AddTeamToCompetition({ competitionId }: Props) {
     try {
       setLoading(true);
       await addTeamToCompetition(competitionId, selectedTeam);
-      alert("Equipo añadido a la liga");
+      notify("Equipo añadido a la liga", "success");
     } catch {
-      alert("No tienes permiso para añadir este equipo");
+      notify("No tienes permiso para añadir este equipo", "error");
     } finally {
       setLoading(false);
     }

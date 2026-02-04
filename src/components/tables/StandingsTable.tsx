@@ -8,6 +8,7 @@ type StandingRow = {
   lost: number;
   pointsFor: number;
   pointsAgainst: number;
+  imageUrl?: string;
 };
 
 type Props = {
@@ -40,9 +41,20 @@ function StandingsTable({ standings }: Props) {
                 className="border-b border-border hover:bg-muted"
               >
                 <td className="py-2 font-medium">
-                  <Link to={`/team/${row.id}`} className="text-primary">
-                    {row.name}
-                  </Link>
+                  <div className="flex items-center gap-3">
+                    <Link to={`/team/${row.id}`} className="text-primary">
+                      {row.name}
+                    </Link>
+                    <img
+                      src={
+                        row?.imageUrl
+                          ? `http://localhost:3000${row.imageUrl}`
+                          : '/team-placeholder.png'
+                      }
+                      alt="Logo del equipo"
+                      className="w-12 h-12 object-cover border rounded-none"
+                    />
+                  </div>
                 </td>
                 <td className="py-2 text-center">{row.played}</td>
                 <td className="py-2 text-center">{row.won}</td>

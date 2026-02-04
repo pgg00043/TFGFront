@@ -1,23 +1,4 @@
-type Stat = {
-  id: number;
-  points: number;
-  rebounds: number;
-  assists: number;
-  steals: number;
-  blocks: number;
-  turnovers: number;
-  fouls: number;
-  minutesPlayed: number;
-  user: {
-    id: number;
-    name: string;
-    surname: string;
-    team: {
-      id: number;
-      name: string;
-    };
-  };
-};
+import type { Stat } from "../../entitys/Entity";
 
 type Props = {
   stats: Stat[];

@@ -24,8 +24,6 @@ function Login() {
       authLogin(result.accessToken, result.user);
 
       localStorage.setItem('token', result.accessToken);
-
-      console.log('Login OK:', result);
       
       navigate('/dashboard');
     } catch {

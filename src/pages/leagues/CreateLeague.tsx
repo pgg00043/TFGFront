@@ -1,21 +1,24 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { createCompetition } from "../../api/apiClient";
+import { useNotification } from "../../ui/NotificationContext";
+
 
 export default function CreateLeague() {
   const [name, setName] = useState("");
   const [category, setCategory] = useState("");
   const navigate = useNavigate();
+  const { notify } = useNotification();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     try {
       await createCompetition({ name, category });
-      alert("Liga creada correctamente");
+      notify("Liga creada con éxito", "success");
       navigate("/my-leagues");
     } catch {
-      alert("Error al crear liga");
+      notify("Error al crear la liga", "error");
     }
   };
 

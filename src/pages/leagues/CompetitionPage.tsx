@@ -1,62 +1,12 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
-import { getCompetitionById, getCompetitionMatches, getCompetitionStandings } from '../../api/apiClient';
+import { generateCompetitionCalendar, getCompetitionById, getCompetitionMatches, getCompetitionStandings, uploadCompetitionImage } from '../../api/apiClient';
 import StandingsTable from '../../components/tables/StandingsTable';
 import MatchesTable from '../../components/tables/MatchesTable';
 import AddTeamToCompetition from "../../components/actions/addTeamToCompetition";
 import { useAuth } from '../../auth/useAuth';
-
-
-type Team = {
-  id: number;
-  name: string;
-  players?: number[];
-  competitions?: number[];
-  played: number;
-  won: number;
-  lost: number;
-  pointsFor: number;
-  pointsAgainst: number;
-};
-
-type Match = {
-  id: number;
-  date: Date;
-  hour: string;
-  location: string;
-  homeTeam: {
-    id: number;
-    name: string;
-  };
-  awayTeam: {
-    id: number;
-    name: string;
-  };
-  scoreHome: number | null;
-  scoreAway: number | null;
-  competitionId: number;
-};
-
-type Competition = {
-  id: number;
-  name: string;
-  category: string;
-  teams: Team[];
-  owner: {
-    id: number;
-    name: string;
-  };
-};
-
-type StandingRow = {
-  id: number;
-  name: string;
-  played: number;
-  won: number;
-  lost: number;
-  pointsFor: number;
-  pointsAgainst: number;
-};
+import type { Competition, Match, StandingRow } from '../../entitys/Entity';
+import { useNotification } from "../../ui/NotificationContext";
 
 type Tab = 'standings' | 'matches';
 
@@ -75,12 +25,16 @@ function CompetitionPage() {
   const [matchesLoading, setMatchesLoading] = useState(true);
   const [matchesError, setMatchesError] = useState('');
   const { user } = useAuth();
+  const [generatingCalendar, setGeneratingCalendar] = useState(false);
+  const { notify } = useNotification();
 
+  const hasImage = typeof competition?.imageUrl === 'string' && competition.imageUrl.trim().length > 0;
   const isOwner = useMemo(() => {
     if (!competition || !user) return false;
-    return competition.owner?.id === user.userId;
+    return competition.ownerId === user.id;
   }, [competition, user]);
   const [ownerOpen, setOwnerOpen] = useState(false);
+  const [uploadingImage, setUploadingImage] = useState(false);
 
   useEffect(() => {
     if (!competitionId) {
@@ -138,6 +92,42 @@ function CompetitionPage() {
     })();
   }, [competitionId]);
 
+  const handleGenerateCalendar = async () => {
+    if (!competitionId) return;
+
+    try {
+      setGeneratingCalendar(true);
+      await generateCompetitionCalendar(competitionId);
+
+      setMatchesLoading(true);
+      const data = await getCompetitionMatches(competitionId);
+      setMatches(data);
+    } catch {
+      notify('No se ha podido generar el calendario', 'error');
+    } finally {
+      setGeneratingCalendar(false);
+      setMatchesLoading(false);
+    }
+  };
+
+  const handleCompetitionImageChange = async (
+    e: React.ChangeEvent<HTMLInputElement>,
+  ) => {
+    if (!e.target.files || !e.target.files[0] || !competition) return;
+
+    try {
+      setUploadingImage(true);
+      await uploadCompetitionImage(competition.id, e.target.files[0]);
+
+      const updated = await getCompetitionById(competition.id);
+      setCompetition(updated);
+    } catch {
+      alert('Error al actualizar la imagen');
+    } finally {
+      setUploadingImage(false);
+    }
+  };
+  
 
 
   const tabBase =
@@ -178,16 +168,41 @@ function CompetitionPage() {
         {!loading && !error && competition && (
           <>
             {/* Competition info */}
-            <div className="rounded-lg border bg-card p-5 mb-6">
-              <h2 className="text-2xl font-bold">{competition.name}</h2>
-              <p className="text-muted-foreground">
-                Categoría: {competition.category}
-              </p>
-              <p className="text-sm text-muted-foreground mt-2">
-                Equipos inscritos: {competition.teams?.length ?? 0}
-              </p>
+            <div className="rounded-lg border bg-card p-5 mb-6 flex items-center gap-6">
+              <img
+                src={
+                  competition.imageUrl?.trim()
+                    ? `http://localhost:3000${competition.imageUrl}`
+                    : '/competition-placeholder.png'
+                }
+                alt="Imagen competición"
+                className="w-24 h-24 rounded-lg object-cover border"
+              />
+
+              <div className="flex-1">
+                <h2 className="text-2xl font-bold">{competition.name}</h2>
+                <p className="text-muted-foreground">
+                  Categoría: {competition.category}
+                </p>
+                <p className="text-sm text-muted-foreground mt-2">
+                  Equipos inscritos: {competition.teams?.length ?? 0}
+                </p>
+
+                {isOwner && (
+                  <label className="text-sm text-primary cursor-pointer mt-2 inline-block">
+                    Cambiar imagen
+                    <input
+                      type="file"
+                      accept="image/*"
+                      className="hidden"
+                      onChange={handleCompetitionImageChange}
+                      disabled={uploadingImage}
+                    />
+                  </label>
+                )}
+              </div>
             </div>
-            {/* Owner actions (collapsible) */}
+
             {isOwner && (
               <div className="rounded-lg border bg-card p-5 mb-6">
                 <div className="flex items-center justify-between">
@@ -251,7 +266,19 @@ function CompetitionPage() {
 
             {tab === 'matches' && (
               <div className="rounded-lg border bg-card p-5">
-                <h3 className="text-lg font-semibold mb-4">Partidos</h3>
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="text-lg font-semibold">Partidos</h3>
+
+                  {isOwner  && (
+                    <button
+                      onClick={handleGenerateCalendar}
+                      disabled={generatingCalendar}
+                      className="rounded-md bg-primary px-4 py-2 text-sm text-primary-foreground hover:opacity-90"
+                    >
+                      {generatingCalendar ? 'Generando…' : 'Generar calendario'}
+                    </button>
+                  )}
+                </div>
 
                 {matchesLoading && (
                   <p className="text-muted-foreground">Cargando partidos…</p>
@@ -261,11 +288,18 @@ function CompetitionPage() {
                   <p className="text-sm text-destructive">{matchesError}</p>
                 )}
 
-                {!matchesLoading && !matchesError && (
-                  <MatchesTable matches={matches} />
+                {!matchesLoading && !matchesError && matches.length > 0 && (
+                  <MatchesTable matches={matches} isOwner={isOwner} />
+                )}
+
+                {!matchesLoading && !matchesError && matches.length === 0 && (
+                  <p className="text-sm text-muted-foreground">
+                    Todavía no se han generado los partidos de la competición.
+                  </p>
                 )}
               </div>
             )}
+
           </>
         )}
       </main>
