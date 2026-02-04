@@ -103,7 +103,7 @@ function TeamDetailPage() {
           <img
             src={
               team?.imageUrl
-                ? `http://localhost:3000${team.imageUrl}`
+                ? `https://tfgback-production-3d35.up.railway.app${team.imageUrl}`
                 : '/team-placeholder.png'
             }
             alt="Logo del equipo"

@@ -48,7 +48,7 @@ function StandingsTable({ standings }: Props) {
                     <img
                       src={
                         row?.imageUrl
-                          ? `http://localhost:3000${row.imageUrl}`
+                          ? `https://tfgback-production-3d35.up.railway.app${row.imageUrl}`
                           : '/team-placeholder.png'
                       }
                       alt="Logo del equipo"

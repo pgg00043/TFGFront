@@ -52,7 +52,7 @@ function CompetitionsPage() {
                   <img
                     src={
                       c.imageUrl
-                        ? `http://localhost:3000${c.imageUrl}`
+                        ? `https://tfgback-production-3d35.up.railway.app${c.imageUrl}`
                         : '/competition-placeholder.png'
                     }
                     alt="Imagen competición"

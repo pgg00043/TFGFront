@@ -28,7 +28,6 @@ function CompetitionPage() {
   const [generatingCalendar, setGeneratingCalendar] = useState(false);
   const { notify } = useNotification();
 
-  const hasImage = typeof competition?.imageUrl === 'string' && competition.imageUrl.trim().length > 0;
   const isOwner = useMemo(() => {
     if (!competition || !user) return false;
     return competition.ownerId === user.id;
@@ -172,7 +171,7 @@ function CompetitionPage() {
               <img
                 src={
                   competition.imageUrl?.trim()
-                    ? `http://localhost:3000${competition.imageUrl}`
+                    ? `https://tfgback-production-3d35.up.railway.app${competition.imageUrl}`
                     : '/competition-placeholder.png'
                 }
                 alt="Imagen competición"

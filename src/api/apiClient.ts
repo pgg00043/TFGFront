@@ -1,4 +1,4 @@
-const API_URL = 'http://localhost:3000';
+const API_URL = 'https://tfgback-production-3d35.up.railway.app';
 
 
 export function authHeaders() {
@@ -186,7 +186,7 @@ export async function createCompetition(data: {
 }
 
 export async function createTeam(data: { name: string }) {
-  const response = await fetch('http://localhost:3000/team', {
+  const response = await fetch(`${API_URL}/team`, {
     method: 'POST',
     headers: authHeaders(),
     body: JSON.stringify(data),
@@ -200,7 +200,7 @@ export async function createTeam(data: { name: string }) {
 }
 
 export async function getMyTeams() {
-  const response = await fetch('http://localhost:3000/team/my', {
+  const response = await fetch(`${API_URL}/team/my`, {
     method: 'GET',
     headers: authHeaders(),
   });
@@ -213,7 +213,7 @@ export async function getMyTeams() {
 }
 
 export async function getAllTeams() {
-  const response = await fetch('http://localhost:3000/team', {
+  const response = await fetch(`${API_URL}/team`, {
     method: 'GET',
     headers: authHeaders(),
   });

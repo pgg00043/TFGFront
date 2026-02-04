@@ -73,7 +73,7 @@ function UserProfilePage() {
         <img
             src={
               user.imageUrl
-                ? `http://localhost:3000${user.imageUrl}`
+                ? `https://tfgback-production-3d35.up.railway.app${user.imageUrl}`
                 : '/user-placeholder.png'
             }
             alt="Avatar"
