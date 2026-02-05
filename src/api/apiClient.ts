@@ -326,7 +326,7 @@ export async function uploadTeamImage(teamId: number, file: File) {
   formData.append('file', file);
 
   const response = await fetch(
-    `http://localhost:3000/team/${teamId}/image`,
+    `${API_URL}/team/${teamId}/image`,
     {
       method: 'POST',
       headers: {

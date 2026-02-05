@@ -23,15 +23,12 @@ function CreateTeamPage() {
       setLoading(true);
       setError('');
 
-      // 1️⃣ Crear equipo
       const team = await createTeam({ name });
 
-      // 2️⃣ Subir imagen si existe
       if (file) {
         await uploadTeamImage(team.id, file);
       }
 
-      // 3️⃣ Navegar
       navigate('/my-teams');
     } catch {
       setError('No se ha podido crear el equipo');
@@ -74,20 +71,18 @@ function CreateTeamPage() {
           className="rounded-lg border bg-card p-6 space-y-4"
         >
           <div>
-            <label className="block text-sm font-medium mb-1">
-              Nombre del equipo
-            </label>
+            <label className="block text-sm font-medium text-foreground mb-1">Nombre del equipo</label>
             <input
-              className="w-full border rounded-md p-2"
+              className="w-full p-2 rounded border border-border bg-input text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/40"
               value={name}
               onChange={(e) => setName(e.target.value)}
               placeholder="Nombre del equipo"
             />
-            <label className="block text-sm font-medium mb-1 mt-4">
+            <label className="block text-sm font-medium text-foreground mb-1">
               Logo del equipo (opcional)
             </label>
             <input
-              className="w-full border rounded-md p-2"
+              className="w-full p-2 rounded border border-border bg-input text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/40"
               type="file"
               accept="image/*"
               onChange={handleFile}
