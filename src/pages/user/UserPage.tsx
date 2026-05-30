@@ -3,7 +3,6 @@ import { useParams, Link } from "react-router-dom";
 function PlayerProfilePage() {
   const { id } = useParams<{ id: string }>();
 
-  // 🔜 Aquí luego irá la llamada al backend
   const player = {
     id,
     username: "JugadorDemo",

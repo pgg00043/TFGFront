@@ -1,5 +1,5 @@
-const API_URL = 'https://tfgback-production-3d35.up.railway.app';
-
+//const API_URL = 'https://tfgback-production-3d35.up.railway.app';
+const API_URL = 'http://localhost:3000';
 
 export function authHeaders() {
   const token = localStorage.getItem('token');
@@ -94,7 +94,7 @@ export async function getCompetitionById(id: number) {
 
 export async function getCompetitionStandings(competitionId: number) {
   const response = await fetch(
-    `${API_URL}/competition/${competitionId}/teams`,
+    `${API_URL}/competition/${competitionId}/standings`,
     {
       method: 'GET',
       headers: authHeaders(),
@@ -259,6 +259,20 @@ export async function addPlayerToTeam( teamId: number, playerId: number ) {
   return response.json();
 }
 
+export async function findPlayerByEmail(email: string) {
+  const response = await fetch(
+    `${API_URL}/users/search?email=${email}`,
+    {
+      method: "GET",
+      headers: authHeaders(),
+    }
+  );
+  if (!response.ok) {
+    throw new Error("Failed to find player by email");
+  }
+  return response.json();
+}
+
 export async function searchPlayers(query: string) {
   const res = await fetch(`/users/search?name=${query}`, {
     headers: {
@@ -402,6 +416,7 @@ export async function updateStat(id: number, dto: any) {
   const res = await fetch(`${API_URL}/stats/${id}`, {
     method: 'PATCH',
     headers: {
+      'Content-Type': 'application/json',
       Authorization: `Bearer ${localStorage.getItem('token')}`,
     },
     body: JSON.stringify(dto),

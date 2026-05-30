@@ -9,14 +9,13 @@ function Home() {
       <div className="w-[420px] rounded-lg border bg-card p-8 text-card-foreground shadow text-center space-y-6">
 
         <h1 className="text-3xl font-bold">
-          Basket App
+          Hoopster
         </h1>
 
         <p className="text-muted-foreground">
           Plataforma para gestionar ligas, equipos, partidos y estadísticas.
         </p>
 
-        {/* USUARIO NO AUTENTICADO */}
         {!isAuthenticated && (
           <div className="flex flex-col gap-3">
             <Link
@@ -35,7 +34,6 @@ function Home() {
           </div>
         )}
 
-        {/* USUARIO AUTENTICADO */}
         {isAuthenticated && (
           <div className="flex flex-col gap-3">
             <p className="text-sm text-muted-foreground">

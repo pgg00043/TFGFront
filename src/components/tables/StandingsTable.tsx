@@ -1,5 +1,7 @@
 import { Link } from "react-router-dom";
 
+const API_URL = 'http://localhost:3000';
+
 type StandingRow = {
   id: number;
   name: string;
@@ -45,15 +47,6 @@ function StandingsTable({ standings }: Props) {
                     <Link to={`/team/${row.id}`} className="text-primary">
                       {row.name}
                     </Link>
-                    <img
-                      src={
-                        row?.imageUrl
-                          ? `https://tfgback-production-3d35.up.railway.app${row.imageUrl}`
-                          : '/team-placeholder.png'
-                      }
-                      alt="Logo del equipo"
-                      className="w-12 h-12 object-cover border rounded-none"
-                    />
                   </div>
                 </td>
                 <td className="py-2 text-center">{row.played}</td>

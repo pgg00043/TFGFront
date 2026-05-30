@@ -29,6 +29,7 @@ function MatchesTable({ matches, isOwner }: Props) {
 
   const [editingMatchId, setEditingMatchId] = useState<number | null>(null);
   const [form, setForm] = useState({
+    date: "",
     scoreHome: "",
     scoreAway: "",
     hour: "",
@@ -37,7 +38,13 @@ function MatchesTable({ matches, isOwner }: Props) {
 
   const startEdit = (match: Match) => {
     setEditingMatchId(match.id);
+
+    const formattedDate = match.date
+      ? new Date(match.date).toISOString().split("T")[0]
+      : "";
+
     setForm({
+      date: formattedDate,
       scoreHome: match.scoreHome?.toString() ?? "",
       scoreAway: match.scoreAway?.toString() ?? "",
       hour: match.hour ?? "",
@@ -45,12 +52,14 @@ function MatchesTable({ matches, isOwner }: Props) {
     });
   };
 
+
   const cancelEdit = () => {
     setEditingMatchId(null);
   };
 
   const saveEdit = async (matchId: number) => {
     await updateMatch(matchId, {
+      date: form.date? new Date(form.date).toISOString() : null,
       scoreHome: Number(form.scoreHome),
       scoreAway: Number(form.scoreAway),
       hour: form.hour,
@@ -89,7 +98,21 @@ function MatchesTable({ matches, isOwner }: Props) {
                   }
                 }}
               >
-                <td className="py-2">{formattedDate}</td>
+                <td className="py-2">
+                  {isEditing ? (
+                    <input
+                      type="date"
+                      value={form.date}
+                      onChange={(e) =>
+                        setForm({ ...form, date: e.target.value })
+                      }
+                      className="rounded-md border border-border bg-white text-black px-2 py-1 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-primary"
+                    />
+                  ) : (
+                    formattedDate
+                  )}
+                </td>
+
 
                 <td className="py-2">
                   {isEditing ? (
@@ -98,7 +121,7 @@ function MatchesTable({ matches, isOwner }: Props) {
                       onChange={(e) =>
                         setForm({ ...form, hour: e.target.value })
                       }
-                      className="w-20 rounded border px-2 py-1 text-sm"
+                      className="rounded-md border border-border bg-white text-black px-2 py-1 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-primary"
                     />
                   ) : (
                     match.hour
@@ -112,7 +135,7 @@ function MatchesTable({ matches, isOwner }: Props) {
                       onChange={(e) =>
                         setForm({ ...form, location: e.target.value })
                       }
-                      className="w-full rounded border px-2 py-1 text-sm"
+                      className="rounded-md border border-border bg-white text-black px-2 py-1 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-primary"
                     />
                   ) : (
                     match.location
@@ -132,7 +155,7 @@ function MatchesTable({ matches, isOwner }: Props) {
                         onChange={(e) =>
                           setForm({ ...form, scoreHome: e.target.value })
                         }
-                        className="w-12 rounded border px-1 text-sm text-center"
+                        className="rounded-md border border-border bg-white text-black px-2 py-1 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-primary"
                       />
                       <span>-</span>
                       <input
@@ -141,7 +164,7 @@ function MatchesTable({ matches, isOwner }: Props) {
                         onChange={(e) =>
                           setForm({ ...form, scoreAway: e.target.value })
                         }
-                        className="w-12 rounded border px-1 text-sm text-center"
+                        className="rounded-md border border-border bg-white text-black px-2 py-1 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-primary"
                       />
                     </div>
                   ) : match.scoreHome !== null ? (

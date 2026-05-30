@@ -3,6 +3,8 @@ import { Link } from 'react-router-dom';
 import { getCompetitions } from '../../api/apiClient';
 import type { Competition } from '../../entitys/Entity';
 
+const API_URL = 'http://localhost:3000';
+
 function CompetitionsPage() {
   const [competitions, setCompetitions] = useState<Competition[]>([]);
   const [loading, setLoading] = useState(true);
@@ -52,7 +54,7 @@ function CompetitionsPage() {
                   <img
                     src={
                       c.imageUrl
-                        ? `https://tfgback-production-3d35.up.railway.app${c.imageUrl}`
+                        ? `${API_URL}${c.imageUrl}`
                         : '/competition-placeholder.png'
                     }
                     alt="Imagen competición"

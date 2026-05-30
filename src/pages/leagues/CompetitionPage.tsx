@@ -9,6 +9,8 @@ import type { Competition, Match, StandingRow } from '../../entitys/Entity';
 import { useNotification } from "../../ui/NotificationContext";
 
 type Tab = 'standings' | 'matches';
+const API_URL = 'http://localhost:3000';
+
 
 function CompetitionPage() {
   const params = useParams();
@@ -141,7 +143,7 @@ function CompetitionPage() {
       {/* Header */}
       <header className="px-6 py-4 border-b border-border bg-card flex items-center justify-between">
         <div>
-          <h1 className="text-xl font-semibold">Basket League</h1>
+          <h1 className="text-xl font-semibold">Hoopster</h1>
           <p className="text-sm text-muted-foreground">
             Competición
           </p>
@@ -171,7 +173,7 @@ function CompetitionPage() {
               <img
                 src={
                   competition.imageUrl?.trim()
-                    ? `https://tfgback-production-3d35.up.railway.app${competition.imageUrl}`
+                    ? `${API_URL}${competition.imageUrl}`
                     : '/competition-placeholder.png'
                 }
                 alt="Imagen competición"

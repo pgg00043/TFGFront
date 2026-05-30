@@ -27,7 +27,6 @@ function MyTeamsPage() {
 
   return (
     <div className="min-h-screen bg-background text-foreground">
-      {/* Header */}
       <header className="px-6 py-4 border-b border-border bg-card flex items-center justify-between">
         <div>
           <h1 className="text-xl font-semibold">Mis equipos</h1>

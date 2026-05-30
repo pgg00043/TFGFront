@@ -5,6 +5,8 @@ import { useAuth } from '../../auth/useAuth';
 import type { User } from '../../entitys/Entity';
 import { useNotification } from '../../ui/NotificationContext.tsx';
 
+const API_URL = 'http://localhost:3000';
+
 function UserProfilePage() {
   const { id } = useParams<{ id: string }>();
   const userId = useMemo(() => (id ? Number(id) : null), [id]);
@@ -73,7 +75,7 @@ function UserProfilePage() {
         <img
             src={
               user.imageUrl
-                ? `https://tfgback-production-3d35.up.railway.app${user.imageUrl}`
+                ? `${API_URL}${user.imageUrl}`
                 : '/user-placeholder.png'
             }
             alt="Avatar"

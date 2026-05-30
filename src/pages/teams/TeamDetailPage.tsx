@@ -4,6 +4,7 @@ import {
   addPlayerToTeam,
   getTeamPlayers,
   getTeamById,
+  findPlayerByEmail,
 } from '../../api/apiClient';
 import { useAuth } from '../../auth/useAuth';
 import type { Team } from '../../entitys/Entity';
@@ -16,6 +17,8 @@ type Player = {
   email: string;
 };
 
+const API_URL = 'http://localhost:3000';
+
 function TeamDetailPage() {
   const { id } = useParams<{ id: string }>();
   const teamId = useMemo(() => (id ? Number(id) : null), [id]);
@@ -26,7 +29,7 @@ function TeamDetailPage() {
   const [players, setPlayers] = useState<Player[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-  const [userId, setUserId] = useState('');
+  const [email, setEmail] = useState('');
   const [adding, setAdding] = useState(false);
   const { notify } = useNotification();
 
@@ -73,14 +76,15 @@ function TeamDetailPage() {
   }, [team, user]);
 
   const handleAddPlayer = async () => {
-    if (!teamId || !userId) return;
+    if (!teamId || !email) return;
 
     try {
       setAdding(true);
-      await addPlayerToTeam(teamId, Number(userId));
+      const player = await findPlayerByEmail(email);
+      await addPlayerToTeam(teamId, player.id);
       await loadPlayers();
-      setUserId('');
-    } catch {
+      setEmail('');
+    } catch (error) {
       notify('No se pudo añadir el jugador', 'error');
     } finally {
       setAdding(false);
@@ -103,7 +107,7 @@ function TeamDetailPage() {
           <img
             src={
               team?.imageUrl
-                ? `https://tfgback-production-3d35.up.railway.app${team.imageUrl}`
+                ? `${API_URL}${team.imageUrl}`
                 : '/team-placeholder.png'
             }
             alt="Logo del equipo"
@@ -120,7 +124,7 @@ function TeamDetailPage() {
           </div>
         </div>
 
-        {/* GESTIÓN (SOLO OWNER, MISMO PATRÓN QUE LIGAS) */}
+        {/* GESTIÓN */}
         {isOwner && (
           <div className="rounded-lg border bg-card p-5 mb-6">
             <h3 className="text-lg font-semibold mb-3">
@@ -129,10 +133,10 @@ function TeamDetailPage() {
 
             <div className="flex gap-2">
               <input
-                type="number"
-                placeholder="ID del jugador"
-                value={userId}
-                onChange={(e) => setUserId(e.target.value)}
+                type="email"
+                placeholder="Email del jugador"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
                 className="flex-1 rounded-md border px-3 py-2 text-sm bg-background"
               />
               <button
